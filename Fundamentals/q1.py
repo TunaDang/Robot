@@ -69,5 +69,5 @@ def video_to_filmstrip(video_frames):
         filmstrip (torch.Tensor)
             A tensor with shape (h, w * n_frames, c)
     """
-    video_frames = np.array(video_frames)
+    video_frames = torch.tensor(video_frames)
     return video_frames.reshape(video_frames.shape[1], video_frames.shape[2]*video_frames.shape[0], video_frames.shape[3])
