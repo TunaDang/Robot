@@ -69,6 +69,7 @@ def train(x, y, model, loss_fn, optimizer, checkpoint_path, num_epochs=1000):
         loss.backward()
         optimizer.step()
         if loss < best_loss:
+            best_loss = loss
             torch.save(model.state_dict(),checkpoint_path)
 
 def load_model_checkpoint(checkpoint_path):
