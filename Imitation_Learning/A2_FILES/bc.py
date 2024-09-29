@@ -42,9 +42,18 @@ def train(learner, observations, actions, validation_obs, validation_acts, check
     for epoch in tqdm(range(num_epochs)):
         epoch_loss = 0
         # TODO: Iterate through dataloader and train
+        for batch_idx, (observations, actions) in enumerate(dataloader):
+            optimizer.zero_grad()
+            y_pred = learner(observations.float())
+            loss = loss_fn(y_pred, actions)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
 
         # TODO: Calculate Validation Loss and Append to validation_losses (remember to use "with torch.no_grad():")
-
+        with torch.no_grad():
+            validation_loss = loss_fn(learner(validation_obs.float()), validation_acts)
+            validation_losses.append(validation_loss)
 
         # Saving model state if current loss is less than best loss
         if epoch_loss < best_loss:

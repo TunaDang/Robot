@@ -1,5 +1,6 @@
 import bc as bc
 import torch
+import numpy as np
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def evaluate(env, learner):
     NUM_TRAJS = 50
@@ -9,7 +10,8 @@ def evaluate(env, learner):
         obs = env.reset(seed = i)
         while not done:
             with torch.no_grad():
-                action = learner.get_action(obs)
+                hidden_obs = np.append(obs[:-1], np.array([0]))
+                action = learner.get_action(hidden_obs)
             obs, reward, done, _ = env.step(action)
             total_learner_reward += reward
             if done:
@@ -57,10 +59,11 @@ def interact(env, learner, expert, observations, actions, validation_obs, valida
                 # obs.append(new_obs)
                 # actions.append(expert(obs))
                 with torch.no_grad():
-                    learner_action = learner.get_action(obs)
+                    hidden_obs = np.append(obs[:-1], np.array([0]))
+                    learner_action = learner.get_action(hidden_obs)
                     expert_action = expert.get_expert_action(obs)
 
-                    observations = torch.cat((observations, torch.unsqueeze(torch.tensor(obs), 0).float().to(device)))
+                    observations = torch.cat((observations, torch.unsqueeze(torch.tensor(hidden_obs), 0).float().to(device)))
                     actions = torch.cat((actions, torch.unsqueeze(torch.tensor(expert_action), 0).float().to(device)))
 
                     obs, reward, done, _ = env.step(learner_action)
